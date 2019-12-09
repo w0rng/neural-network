@@ -1,19 +1,14 @@
 from types import FunctionType
 
-from .Neuron import Neuron
-from .Saver import State
-
-
-def _data_normalization(data: list) -> list:
-    return [elem / max(data) for elem in data]
+from neuron import Neuron
 
 
 class Network:
     def __init__(self, count_neurons: list,
-                 activation: FunctionType,
-                 dx: FunctionType) -> None:
-        self.activation = activation
-        self.dx = dx
+                 f: FunctionType,
+                 df: FunctionType) -> None:
+        self.f = f
+        self.df = df
         if len(count_neurons) >= 2:
             self._create_matrix(count_neurons)
         else:
@@ -34,26 +29,21 @@ class Network:
                     neuron.weight = [1]
 
     def predict(self, data: list) -> list:
-        data = _data_normalization(data)
+        normalization_factor = max(data)
+        data = [x/normalization_factor for x in data]
         for i, layer in enumerate(self.matrix):
             for j, neuron in enumerate(layer):
                 if i == 0:
                     neuron.inp = data[j]
                 else:
                     inp = [n.inp * n.weight[j] for n in self.matrix[i - 1]]
-                    neuron.inp = self.activation(sum(inp))
-        return [self.activation(n.inp) for n in self.matrix[-1]]
-
-    def _save(self) -> State:
-        return State(self.matrix)
-
-    def _restore(self, state: State) -> None:
-        self.matrix = state.get_weights()
+                    neuron.inp = self.f(sum(inp))
+        return [self.f(n.inp)*normalization_factor for n in self.matrix[-1]]
 
     """     def trainig(self, data: list, expected: list, learning_rate: int) -> None:
         self.predict(data)
         errors = [predict[i] - expected[i] for i in range(len(predict))]
-        weight_delta = [error * self.dx(predict[i])
+        weight_delta = [error * self.df(predict[i])
                         for i, error in enumerate(errors)]
         print(weight_delta)
         for i, layer in self.matrix[-1]:
