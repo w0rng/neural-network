@@ -1,5 +1,5 @@
 from network import Network
-from activation_functions.sigmoid import f, df
+import activation_functions.sigmoid as sigmoid
 
 
 def approximable(x: float) -> float:
@@ -7,8 +7,9 @@ def approximable(x: float) -> float:
 
 
 def main():
-    network = Network([1, 3, 5, 3, 1], f, df)
+    network = Network([1, 3, 5, 3, 1], sigmoid.f, sigmoid.df)
     print(approximable(7), network.predict([7]))
+    network.save("neurons.save")
 
 
 if __name__ == "__main__":

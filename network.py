@@ -1,6 +1,6 @@
 from types import FunctionType
-
 from neuron import Neuron
+import saver
 
 
 class Network:
@@ -9,18 +9,18 @@ class Network:
                  df: FunctionType) -> None:
         self.f = f
         self.df = df
+        self.matrix = []
         if len(count_neurons) >= 2:
-            self._create_matrix(count_neurons)
+            self.__create_matrix(count_neurons)
         else:
             exit(2)
 
-    def _create_matrix(self, count_neurons: list) -> None:
-        self.matrix = []
+    def __create_matrix(self, count_neurons: list) -> None:
         for count in count_neurons:
             self.matrix.append([Neuron() for _ in range(count)])
-        self._gen_weights(count_neurons)
+        self.__gen_weights(count_neurons)
 
-    def _gen_weights(self, count_neurons: list) -> None:
+    def __gen_weights(self, count_neurons: list) -> None:
         for i, layer in enumerate(self.matrix):
             for neuron in layer:
                 if i != len(self.matrix) - 1:
@@ -38,14 +38,7 @@ class Network:
                 else:
                     inp = [n.inp * n.weight[j] for n in self.matrix[i - 1]]
                     neuron.inp = self.f(sum(inp))
-        return [self.f(n.inp)*normalization_factor for n in self.matrix[-1]]
+        return [self.f(n.inp) * normalization_factor for n in self.matrix[-1]]
 
-    """     def trainig(self, data: list, expected: list, learning_rate: int) -> None:
-        self.predict(data)
-        errors = [predict[i] - expected[i] for i in range(len(predict))]
-        weight_delta = [error * self.df(predict[i])
-                        for i, error in enumerate(errors)]
-        print(weight_delta)
-        for i, layer in self.matrix[-1]:
-            for j, neuron in layer:
-                pass """
+    def save(self, filename: str) -> None:
+        saver.save_neurons(self.matrix, filename)
