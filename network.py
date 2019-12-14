@@ -15,6 +15,24 @@ class Network:
         else:
             exit(2)
 
+    def predict(self, data: list) -> list:
+        normalization_factor = max(data)
+        data = [x/normalization_factor for x in data]
+        for i, layer in enumerate(self.matrix):
+            for j, neuron in enumerate(layer):
+                if i == 0:
+                    neuron.inp = data[j]
+                else:
+                    inp = [n.inp * n.weight[j] for n in self.matrix[i - 1]]
+                    neuron.inp = self.f(sum(inp))
+        return [self.f(n.inp * n.weight[0]) * normalization_factor for n in self.matrix[-1]]
+
+    def save(self, filename: str) -> None:
+        saver.save_neurons(self.matrix, filename)
+
+    def load(self, filename: str) -> None:
+        saver.load_neurons(self, filename)
+
     def __create_matrix(self, count_neurons: list) -> None:
         for count in count_neurons:
             self.matrix.append([Neuron() for _ in range(count)])
@@ -26,19 +44,4 @@ class Network:
                 if i != len(self.matrix) - 1:
                     neuron.gen_weight(count_neurons[i + 1])
                 else:
-                    neuron.weight = [1]
-
-    def predict(self, data: list) -> list:
-        normalization_factor = max(data)
-        data = [x/normalization_factor for x in data]
-        for i, layer in enumerate(self.matrix):
-            for j, neuron in enumerate(layer):
-                if i == 0:
-                    neuron.inp = data[j]
-                else:
-                    inp = [n.inp * n.weight[j] for n in self.matrix[i - 1]]
-                    neuron.inp = self.f(sum(inp))
-        return [self.f(n.inp) * normalization_factor for n in self.matrix[-1]]
-
-    def save(self, filename: str) -> None:
-        saver.save_neurons(self.matrix, filename)
+                    neuron.gen_weight(1)

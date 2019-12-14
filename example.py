@@ -7,9 +7,9 @@ def approximable(x: float) -> float:
 
 
 def main():
-    network = Network([1, 3, 5, 3, 1], sigmoid.f, sigmoid.df)
-    print(approximable(7), network.predict([7]))
+    network = Network([1, 10, 20, 30, 20, 10, 1], sigmoid.f, sigmoid.df)
     network.save("neurons.save")
+    print(approximable(7), network.predict([7]))
 
 
 if __name__ == "__main__":
